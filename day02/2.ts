@@ -1,9 +1,9 @@
 import { solve, bitsToInt } from './helper.ts'
 
-const colors = ['blue', 'red', 'green']
+const colors = ['blue', 'red', 'green'] as const
 type Colors = typeof colors[number]
 
-type Game = { [key: Colors]: number }
+type Game = { [key in Colors]: number }
 
 // 25:00
 
