@@ -13,7 +13,7 @@ solve((lines) => {
     const gameId = index + 1
     if (gamePossible(getGame(line))) sum = sum + gameId
   })
-  console.log(sum)
+  return sum
 })
 
 function getGame(line: string) {

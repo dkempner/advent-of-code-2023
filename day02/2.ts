@@ -13,7 +13,7 @@ solve((lines) => {
     const game = getGame(line)
     sum = sum + game.blue * game.red * game.green
   })
-  console.log(sum)
+  return sum
 })
 
 function getGame(line: string) {
