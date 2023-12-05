@@ -1,59 +1,70 @@
-import { bitsToInt, solve } from "./helper.ts";
+import { bitsToInt, solve } from './helper.ts'
 
 solve((lines) => {
-  const counts: number[] = Array.from({ length: lines.length });
-  counts.fill(1);
-  lines.forEach((line, index) => {
-    const { winningNumbers, myNumbers } = parseLine(line);
-    const myWinningNumbers = getMyWinningNumbers(winningNumbers, myNumbers);
-    const score = scoreMyWinningNumbers(myWinningNumbers);
-    const multiplier = counts[index];
+  const bigString = lines.join('\n')
+  const groups = bigString.split('\n\n')
 
-    if (!score) return;
+  const [seeds, ...maps] = groups
+  const mapsArrays = maps.map((x) => x.split('\n'))
 
-    for (let i = 1; i < score + 1; i++) {
-      const indexToAccess = index + i;
-      const current = counts[indexToAccess];
-      const newValue = current + multiplier;
-      counts[indexToAccess] = newValue;
+  const seedValues = seeds.split(':')[1].trim().split(' ').map(Number)
+
+  const stages: ((val: number) => number | undefined)[][] = []
+
+  mapsArrays.forEach((map) => {
+    const mapping: ((val: number) => number | undefined)[] = []
+
+    map.forEach((line, index) => {
+      if (index === 0) return
+      const [destination, source, count] = line.split(' ').map(Number)
+
+      const func = (val: number): number | undefined => {
+        if (val >= source && val < source + count) {
+          const diff = val - source
+          return destination + diff
+        }
+        return undefined
+      }
+
+      mapping.push(func)
+    })
+
+    stages.push(mapping)
+  })
+
+  let seedsFinal = [...seedValues]
+
+  let lowest = Infinity
+
+  let totalCount = 0
+  let counter = 0
+
+  for (let i = 0; i < seedsFinal.length - 1; i = i + 2) {
+    const start = seedsFinal[i]
+    const count = seedsFinal[i + 1]
+    totalCount = count + totalCount
+
+    for (let i = 0; i < count; i++) {
+      const startDate = new Date()
+      let valToTest = start + i
+      stages.forEach((stage) => {
+        const mapped = stage.find((x) => x(valToTest))?.(valToTest)
+        valToTest = mapped || valToTest
+      })
+      if (valToTest < lowest) lowest = valToTest
+      const endDate = new Date()
+      const time = endDate.getUTCMilliseconds() - startDate.getUTCMilliseconds()
+      counter++
+      if (counter % 1000000 === 0) {
+        console.log({
+          time,
+          counter,
+          percent: counter / totalCount,
+        })
+      }
     }
-  });
+  }
 
-  const sum = counts.reduce((acc, curr) => acc + curr, 0);
-  console.log(sum);
-});
-
-function parseLine(line: string) {
-  const [card, numbers] = line.split(":").filter((x) => x);
-  const [winningNumbersRaw, myNumbersRaw] = numbers.split(" | ");
-  return {
-    cardNumber: Number(card.split(" ")[1]),
-    winningNumbers: winningNumbersRaw.trim().split(" ").filter((x) => x).map((
-      x,
-    ) => Number(x)),
-    myNumbers: myNumbersRaw.trim().split(" ").filter((x) => x).map((x) =>
-      Number(x)
-    ),
-  };
-}
-
-function getMyWinningNumbers(
-  winningNumbers: number[],
-  myNumbers: number[],
-): number[] {
-  const myWinningNumbers: number[] = [];
-  myNumbers.forEach((myNumber) => {
-    if (
-      winningNumbers.includes(myNumber) && !myWinningNumbers.includes(myNumber)
-    ) {
-      myWinningNumbers.push(myNumber);
-    }
-  });
-  return myWinningNumbers;
-}
-
-function scoreMyWinningNumbers(
-  myWinningNumbers: number[],
-): number {
-  return myWinningNumbers.length;
-}
+  console.log({ totalCount })
+  return lowest
+})
