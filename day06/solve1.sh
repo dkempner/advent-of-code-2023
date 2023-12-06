@@ -1,0 +1,1 @@
+deno run --watch --allow-read 1.ts
