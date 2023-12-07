@@ -42,7 +42,6 @@ solve((lines) => {
   for (let i = 0; i < sorted.length; i++) {
     const rank = i + 1
     const subject = sorted[i]
-    console.log({ rank, subject })
     final = final + subject.bid * rank
   }
 
