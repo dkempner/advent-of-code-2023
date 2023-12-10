@@ -105,57 +105,12 @@ solve((lines) => {
     explore(row, col, prevFurthest)
   }
 
-  const loopDiagram: string[][] = farthest.map((l) =>
-    l.map((x) => {
+  const loopDiagram: string[][] = farthest.map((l, row) =>
+    l.map((x, col) => {
+      const map = { '|': '│', '-': '─', L: '└', J: '┘', 7: '┐', F: '┌', S: '█' }
       if (x === Infinity) return '.'
-      return 'X'
+      return map[grid[row][col]]
     })
-  )
-
-  function spiralTraversal(rows: number, cols: number) {
-    const result: number[][] = []
-
-    let top = 0
-    let bottom = rows - 1
-    let left = 0
-    let right = cols - 1
-
-    while (top <= bottom && left <= right) {
-      // Traverse top row
-      for (let col = left; col <= right; col++) {
-        result.push([top, col])
-      }
-      top++
-
-      // Traverse right column
-      for (let row = top; row <= bottom; row++) {
-        result.push([row, right])
-      }
-      right--
-
-      // Traverse bottom row
-      if (top <= bottom) {
-        for (let col = right; col >= left; col--) {
-          result.push([bottom, col])
-        }
-        bottom--
-      }
-
-      // Traverse left column
-      if (left <= right) {
-        for (let row = bottom; row >= top; row--) {
-          result.push([row, left])
-        }
-        left++
-      }
-    }
-
-    return result
-  }
-
-  const inSpiralOrder = spiralTraversal(
-    loopDiagram.length,
-    loopDiagram[0].length
   )
 
   loopDiagram.forEach((x) => {
@@ -163,50 +118,8 @@ solve((lines) => {
   })
 
   console.log('\n')
-
-  let kontinue = true
-
-  while (kontinue) {
-    let flippedAny = false
-
-    loopDiagram.forEach((x, row) => {
-      x.forEach((y, col) => {
-        const cell = loopDiagram[row][col]
-        if (cell === 'X') return
-        if (cell === 'E') return
-        const up = loopDiagram[row - 1]?.[col]
-        const left = loopDiagram[row]?.[col - 1]
-        const down = loopDiagram[row + 1]?.[col]
-        const right = loopDiagram[row]?.[col + 1]
-
-        const all = [up, left, down, right]
-
-        if (all.some((x) => x === undefined || x === 'E')) {
-          loopDiagram[row][col] = 'E'
-          flippedAny = true
-        }
-      })
-    })
-
-    if (!flippedAny) kontinue = false
-  }
 
   let count = 0
-
-  loopDiagram.forEach((x) => {
-    console.log(x.join(' '))
-  })
-
-  console.log('\n')
-
-  loopDiagram.forEach((x, row) => {
-    x.forEach((y, col) => {
-      if (y === '.') {
-        count++
-        console.log({ row, col })
-      }
-    })
-  })
 
   return count
 })
